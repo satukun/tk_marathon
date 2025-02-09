@@ -6,7 +6,12 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOi
 
 export const supabase = createClient(
   supabaseUrl,
-  supabaseAnonKey
+  supabaseAnonKey,
+  {
+    auth: {
+      persistSession: false // WebSocketセッションを無効化
+    }
+  }
 );
 
 export type Runner = {
@@ -118,16 +123,13 @@ export async function updateRunner(
   }
 }
 
-// 画像アップロード用の関数
 export async function uploadRunnerPhoto(
   runnerId: string, 
   photoBlob: Blob
 ): Promise<string> {
-  // ファイル名を生成（タイムスタンプを含めて一意にする）
   const fileName = `${runnerId}_${Date.now()}.jpg`;
   const filePath = `photos/${fileName}`;
 
-  // Storageにアップロード
   const { error: uploadError } = await supabase.storage
     .from('runner-photos')
     .upload(filePath, photoBlob, {
@@ -141,7 +143,6 @@ export async function uploadRunnerPhoto(
     throw uploadError;
   }
 
-  // 公開URLを取得
   const { data } = supabase.storage
     .from('runner-photos')
     .getPublicUrl(filePath);
@@ -149,7 +150,6 @@ export async function uploadRunnerPhoto(
   return data.publicUrl;
 }
 
-// 画像の削除用の関数
 export async function deleteRunnerPhoto(photoPath: string): Promise<void> {
   const { error } = await supabase.storage
     .from('runner-photos')
