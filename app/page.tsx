@@ -46,23 +46,6 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* <Card>
-              <CardHeader>
-                <CardTitle>カメラ操作</CardTitle>
-                <CardDescription>撮影スタッフの方はこちら</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  className="w-full" 
-                  variant="secondary"
-                  onClick={() => handleNavigation("/staff/camera")}
-                  disabled={loadingRoute !== null}
-                >
-                  {loadingRoute === "/staff/camera" ? "読み込み中..." : "カメラ操作へ"}
-                </Button>
-              </CardContent>
-            </Card> */}
-
             <Card>
               <CardHeader>
                 <CardTitle>ランナー検索</CardTitle>

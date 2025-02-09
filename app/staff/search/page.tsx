@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Camera, Search, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ type Runner = {
   message: string;
 };
 
-type View = "search" | "camera" | "processing" | "complete";
+type View = "search" | "camera" | "complete";
 
 const pageVariants = {
   initial: {
@@ -100,31 +100,32 @@ export default function StaffSearchPage() {
     }
   };
 
-  const handlePhotoCapture = (imageUrl: string, result?: { age: number; gender: string }) => {
+  const handlePhotoCapture = async (imageUrl: string, result?: { age: number; gender: string }) => {
     setCapturedImage(imageUrl);
-    if (result) {
+    if (result && runner) {
       setDetectionResult(result);
+      try {
+        await fetch(`/api/runners/${runner.runnerId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            age: result.age,
+            gender: result.gender,
+          }),
+        });
+      } catch (error) {
+        console.error('Failed to update runner data:', error);
+      }
     }
-    setCurrentView("processing");
-    
-    // 解析中の表示を3秒間表示
-    setTimeout(() => {
-      setCurrentView("complete");
-    }, 3000);
+    setCurrentView("complete");
   };
 
   const handleRetake = () => {
     setCurrentView("camera");
     setCapturedImage(null);
     setDetectionResult(null);
-  };
-
-  const handleBack = () => {
-    if (currentView === "camera") {
-      setCurrentView("search");
-    } else if (currentView === "complete") {
-      setCurrentView("camera");
-    }
   };
 
   const handleNewSearch = () => {
@@ -149,8 +150,11 @@ export default function StaffSearchPage() {
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold">ランナー検索</h1>
               <div className="space-x-2">
-                {(currentView === "camera" || currentView === "complete") && (
-                  <Button variant="outline" onClick={handleBack}>
+                {currentView !== "search" && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setCurrentView(currentView === "complete" ? "camera" : "search")}
+                  >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     戻る
                   </Button>
@@ -208,25 +212,7 @@ export default function StaffSearchPage() {
                     </Card>
 
                     <AnimatePresence mode="wait">
-                      {isSearching ? (
-                        <motion.div
-                          key="searching"
-                          variants={runnerInfoVariants}
-                          initial="initial"
-                          animate="animate"
-                          exit="exit"
-                        >
-                          <Card>
-                            <CardContent className="py-16">
-                              <div className="text-center space-y-4">
-                                <div className="w-16 h-16 border-4 border-primary rounded-full border-t-transparent animate-spin mx-auto" />
-                                <h2 className="text-2xl font-bold">ランナーを検索中...</h2>
-                                <p className="text-muted-foreground">しばらくお待ちください</p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      ) : runner && (
+                      {runner && (
                         <motion.div
                           key={runner.runnerId}
                           variants={runnerInfoVariants}
@@ -283,18 +269,6 @@ export default function StaffSearchPage() {
                     runnerId={runner.runnerId}
                     onPhotoCapture={handlePhotoCapture}
                   />
-                )}
-
-                {currentView === "processing" && (
-                  <Card>
-                    <CardContent className="py-16">
-                      <div className="text-center space-y-4">
-                        <div className="w-16 h-16 border-4 border-primary rounded-full border-t-transparent animate-spin mx-auto" />
-                        <h2 className="text-2xl font-bold">写真を解析中...</h2>
-                        <p className="text-muted-foreground">しばらくお待ちください</p>
-                      </div>
-                    </CardContent>
-                  </Card>
                 )}
 
                 {currentView === "complete" && runner && capturedImage && (
