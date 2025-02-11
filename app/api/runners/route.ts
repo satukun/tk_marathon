@@ -5,8 +5,12 @@ import { addRunner } from "@/lib/supabase";
 const runnerSchema = z.object({
   nickname: z.string().min(1, "ニックネームは1文字以上で入力してください"),
   language: z.string(),
-  targetTime: z.string().regex(/^\d{2}:\d{2}:\d{2}$/, "時間は HH:MM:SS 形式で入力してください"),
+  targetTime: z.string(),
+  targetTimeNumber: z.number().min(1).max(3),
   message: z.string(),
+  messageNumber: z.number().min(1).max(5),
+  upperPhrase: z.string(),
+  lowerPhrase: z.string(),
 });
 
 function generateRunnerId(): string {
@@ -27,7 +31,11 @@ export async function POST(request: Request) {
       nickname: runner.nickname,
       language: runner.language,
       target_time: runner.targetTime,
+      target_time_number: runner.targetTimeNumber,
       message: runner.message,
+      message_number: runner.messageNumber,
+      upper_phrase: runner.upperPhrase,
+      lower_phrase: runner.lowerPhrase,
     });
 
     return NextResponse.json({ success: true, runnerId }, { status: 201 });

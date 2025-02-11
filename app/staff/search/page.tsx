@@ -7,10 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { PageTransition } from "@/components/page-transition";
 import { CameraPreview } from "@/components/staff/camera-preview";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessageSlot } from "@/components/staff/message-slot";
 
 type Runner = {
   runnerId: string;
@@ -18,9 +16,11 @@ type Runner = {
   language: string;
   targetTime: string;
   message: string;
+  upperPhrase: string;
+  lowerPhrase: string;
 };
 
-type View = "search" | "camera" | "complete";
+type View = "search" | "camera" | "confirming" | "complete";
 
 const pageVariants = {
   initial: {
@@ -74,7 +74,6 @@ export default function StaffSearchPage() {
   const [runner, setRunner] = useState<Runner | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [detectionResult, setDetectionResult] = useState<{ age: number; gender: string } | null>(null);
 
   const searchRunner = async () => {
     if (!searchId.trim()) {
@@ -100,44 +99,35 @@ export default function StaffSearchPage() {
     }
   };
 
-  const handlePhotoCapture = async (imageUrl: string, result?: { age: number; gender: string }) => {
+  const handlePhotoCapture = async (imageUrl: string) => {
     setCapturedImage(imageUrl);
-    if (result && runner) {
-      setDetectionResult(result);
-      try {
-        await fetch(`/api/runners/${runner.runnerId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            age: result.age,
-            gender: result.gender,
-          }),
-        });
-      } catch (error) {
-        console.error('Failed to update runner data:', error);
-      }
-    }
-    setCurrentView("complete");
+    setCurrentView("confirming");
+    
+    // 3秒後に完了画面に遷移
+    setTimeout(() => {
+      setCurrentView("complete");
+    }, 3000);
   };
 
   const handleRetake = () => {
     setCurrentView("camera");
     setCapturedImage(null);
-    setDetectionResult(null);
   };
 
   const handleNewSearch = () => {
     setCurrentView("search");
     setSearchId("");
     setCapturedImage(null);
-    setDetectionResult(null);
     setRunner(null);
   };
 
   return (
-    <PageTransition>
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
       <main className="min-h-screen bg-gradient-to-b from-background to-muted">
         <div className="container mx-auto px-4 py-8">
           <header className="mb-8">
@@ -246,6 +236,14 @@ export default function StaffSearchPage() {
                                   </div>
                                 </div>
 
+                                <div className="space-y-2 border-t pt-4">
+                                  <p className="text-sm font-medium text-muted-foreground">生成されたメッセージ</p>
+                                  <div className="space-y-1">
+                                    <p className="text-lg">{runner.upperPhrase}</p>
+                                    <p className="text-lg">{runner.lowerPhrase}</p>
+                                  </div>
+                                </div>
+
                                 <Button
                                   className="w-full"
                                   size="lg"
@@ -271,6 +269,24 @@ export default function StaffSearchPage() {
                   />
                 )}
 
+                {currentView === "confirming" && runner && capturedImage && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>写真を確認中</CardTitle>
+                      <CardDescription>写真を処理しています...</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="flex items-center justify-center py-8">
+                        <div className="text-center">
+                          <div className="w-16 h-16 border-4 border-primary rounded-full border-t-transparent animate-spin mx-auto mb-4"></div>
+                          <p className="text-lg font-semibold">写真を確認中...</p>
+                          <p className="text-sm text-muted-foreground">しばらくお待ちください</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {currentView === "complete" && runner && capturedImage && (
                   <Card>
                     <CardHeader>
@@ -281,18 +297,11 @@ export default function StaffSearchPage() {
                       <div className="space-y-4">
                         <div className="space-y-4">
                           <p className="text-3xl font-bold text-center">{runner.nickname}さん</p>
-                          <div className="text-3xl">
-                            <MessageSlot message={runner.message} />
+                          <div className="text-3xl text-center space-y-2">
+                            <p>{runner.upperPhrase}</p>
+                            <p>{runner.lowerPhrase}</p>
                           </div>
                           <p className="text-3xl text-center">目標タイム: {runner.targetTime}</p>
-                          {detectionResult && (
-                            <div className="flex justify-center gap-4 mt-2">
-                              <p className="text-base">推定年齢: {detectionResult.age}歳</p>
-                              <p className="text-base">
-                                性別: {detectionResult.gender === 'male' ? '男性' : '女性'}
-                              </p>
-                            </div>
-                          )}
                         </div>
                         <div>
                           <img
@@ -328,6 +337,6 @@ export default function StaffSearchPage() {
           </div>
         </div>
       </main>
-    </PageTransition>
+    </motion.div>
   );
 }

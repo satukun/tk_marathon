@@ -49,7 +49,7 @@ export function MessageSlot({ message, delay = 0 }: MessageSlotProps) {
                   stiffness: 300,
                   damping: 20,
                   mass: 0.5,
-                  duration: 0.01 // スプリングアニメーションを0.05秒に設定
+                  duration: 0.01
                 }}
                 className="absolute inset-0 flex items-center justify-center"
               >
@@ -61,7 +61,7 @@ export function MessageSlot({ message, delay = 0 }: MessageSlotProps) {
                 animate={{
                   y: [-100, 100],
                   transition: {
-                    duration: 0.3, // スロットの回転速度を0.3秒に設定
+                    duration: 0.3,
                     repeat: Infinity,
                     ease: "linear"
                   }

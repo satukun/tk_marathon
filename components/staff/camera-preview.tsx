@@ -7,21 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import * as faceapi from 'face-api.js';
-
-type DetectionResult = {
-  age: number;
-  gender: 'male' | 'female';
-  genderProbability: number;
-};
-
-type Runner = {
-  runnerId: string;
-  nickname: string;
-  language: string;
-  targetTime: string;
-  message: string;
-};
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface CameraPreviewProps {
   autoInit?: boolean;
@@ -29,110 +16,19 @@ interface CameraPreviewProps {
   onPhotoCapture?: (imageUrl: string) => void;
 }
 
-const MODEL_URL = 'https://raw.githubusercontent.com/vladmandic/face-api/master/model/';
-
 export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture }: CameraPreviewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const detectionRef = useRef<number>();
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string>("");
   const [isInitializing, setIsInitializing] = useState(false);
-  const [isModelLoading, setIsModelLoading] = useState(true);
-  const [detectionResult, setDetectionResult] = useState<DetectionResult | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [runner, setRunner] = useState<Runner | null>(null);
-
-  useEffect(() => {
-    const loadModels = async () => {
-      try {
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-          faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL)
-        ]);
-        setIsModelLoading(false);
-        console.log('Face detection models loaded');
-      } catch (error) {
-        console.error('Error loading face detection models:', error);
-        toast.error("顔認識モデルの読み込みに失敗しました", {
-          description: "ネットワーク接続を確認してください"
-        });
-      }
-    };
-    loadModels();
-  }, []);
-
-  useEffect(() => {
-    const fetchRunner = async () => {
-      if (!runnerId) return;
-      try {
-        const response = await fetch(`/api/runners/${runnerId}`);
-        if (!response.ok) throw new Error("ランナー情報の取得に失敗しました");
-        const data = await response.json();
-        setRunner(data);
-      } catch (error) {
-        console.error("Runner fetch error:", error);
-        toast.error("ランナー情報の取得に失敗しました");
-      }
-    };
-    fetchRunner();
-  }, [runnerId]);
-
-  const detectFace = async (imageElement: HTMLImageElement | HTMLVideoElement) => {
-    try {
-      const detections = await faceapi
-        .detectSingleFace(imageElement, new faceapi.TinyFaceDetectorOptions())
-        .withAgeAndGender();
-
-      if (detections) {
-        setDetectionResult({
-          age: Math.round(detections.age),
-          gender: detections.gender as 'male' | 'female',
-          genderProbability: detections.genderProbability
-        });
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Face detection error:', error);
-      return false;
-    }
-  };
-
-  const startDetection = () => {
-    if (!videoRef.current || !isCameraReady || isModelLoading) return;
-
-    const runDetection = async () => {
-      if (videoRef.current && isCapturing) {
-        await detectFace(videoRef.current);
-        detectionRef.current = requestAnimationFrame(runDetection);
-      }
-    };
-
-    runDetection();
-  };
-
-  const stopDetection = () => {
-    if (detectionRef.current) {
-      cancelAnimationFrame(detectionRef.current);
-      detectionRef.current = undefined;
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      stopDetection();
-      if (videoRef.current?.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
+  const [autoTransition, setAutoTransition] = useState(false);
 
   const initCamera = async (deviceId?: string) => {
     try {
@@ -200,8 +96,6 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
     setIsCapturing(true);
     setCountdown(5);
     setCapturedImage(null);
-    setDetectionResult(null);
-    startDetection();
 
     toast.success("撮影を開始します", {
       description: "カウントダウンが始まります"
@@ -219,8 +113,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
     }, 1000);
   };
 
-  const captureImage = async () => {
-    stopDetection();
+  const captureImage = () => {
     setIsCapturing(false);
     setIsAnalyzing(true);
 
@@ -236,31 +129,15 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
       const imageUrl = tempCanvas.toDataURL('image/jpeg');
       setCapturedImage(imageUrl);
 
-      const img = new Image();
-      img.src = imageUrl;
-      await new Promise(resolve => { img.onload = resolve; });
-
-      const detections = await faceapi
-        .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
-        .withAgeAndGender();
-
-      setIsAnalyzing(false);
-
-      if (detections) {
-        const result = {
-          age: Math.round(detections.age),
-          gender: detections.gender as 'male' | 'female',
-          genderProbability: detections.genderProbability
-        };
-        setDetectionResult(result);
-        toast.success("撮影完了！", {
-          description: `推定年齢: ${result.age}歳, 性別: ${result.gender === 'male' ? '男性' : '女性'}`
-        });
+      if (autoTransition) {
+        // 自動遷移の場合は即座に写真を送信
+        onPhotoCapture?.(imageUrl);
       } else {
-        toast.error("顔を検出できませんでした", {
-          description: "もう一度撮影してください"
-        });
-        setCapturedImage(null);
+        // 手動遷移の場合は分析中の表示のみ
+        setTimeout(() => {
+          setIsAnalyzing(false);
+          toast.success("撮影完了！");
+        }, 3000);
       }
     }
   };
@@ -268,9 +145,8 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
   const retakePhoto = async () => {
     try {
       setCapturedImage(null);
-      setDetectionResult(null);
       setIsCapturing(false);
-      stopDetection();
+      setIsAnalyzing(false);
       await initCamera(selectedDevice);
       toast.success("撮影をやり直します");
     } catch (error) {
@@ -291,7 +167,6 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
         <CardTitle>カメラプレビュー</CardTitle>
         <CardDescription>
           {!runnerId ? "ランナーを検索してください" :
-           isModelLoading ? "顔認識モデルを読み込み中..." :
            isCameraReady ? "撮影の準備ができています" : 
            permissionDenied ? "カメラへのアクセスが拒否されています" : 
            isInitializing ? "カメラを初期化中..." :
@@ -324,7 +199,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
           {!isCameraReady ? (
             <Button 
               onClick={() => initCamera(selectedDevice)}
-              disabled={isInitializing || isModelLoading || !runnerId}
+              disabled={isInitializing || !runnerId}
             >
               <Camera className="w-4 h-4 mr-2" />
               カメラを起動
@@ -335,6 +210,17 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
               カメラを停止
             </Button>
           )}
+        </div>
+
+        <div className="flex items-center justify-between space-x-2 py-2">
+          <Label htmlFor="auto-transition" className="text-sm font-medium">
+            撮影後に自動で確認画面へ遷移
+          </Label>
+          <Switch
+            id="auto-transition"
+            checked={autoTransition}
+            onCheckedChange={setAutoTransition}
+          />
         </div>
 
         <div className="aspect-video bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg overflow-hidden relative">
@@ -360,7 +246,6 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
                 <Camera className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p className="text-lg opacity-75">
                   {!runnerId ? "ランナーを検索してください" :
-                   isModelLoading ? "顔認識モデルを読み込み中..." :
                    permissionDenied ? "カメラへのアクセスが拒否されています" : 
                    isInitializing ? "カメラを初期化中..." :
                    "カメラを起動してください"}
@@ -375,22 +260,11 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
               </div>
             </div>
           )}
-          {detectionResult && (
-            <div className="absolute top-4 right-4 bg-black/75 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
-              <p className="text-sm">
-                推定年齢: {detectionResult.age}歳
-              </p>
-              <p className="text-sm">
-                性別: {detectionResult.gender === 'male' ? '男性' : '女性'} 
-                ({Math.round(detectionResult.genderProbability * 100)}%)
-              </p>
-            </div>
-          )}
           {isAnalyzing && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
               <div className="text-center text-white">
                 <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-lg font-semibold">解析中...</p>
+                <p className="text-lg font-semibold">写真を分析中...</p>
               </div>
             </div>
           )}
@@ -406,41 +280,41 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
         )}
 
         <div className="flex gap-4">
-          {capturedImage ? (
+          {capturedImage && !isAnalyzing ? (
             <>
               <Button 
                 variant="outline"
                 className="flex-1" 
                 onClick={retakePhoto}
-                disabled={isAnalyzing}
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
                 撮り直す
               </Button>
-              <Button 
-                className="flex-1"
-                onClick={() => onPhotoCapture?.(capturedImage)}
-                disabled={isAnalyzing}
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                この写真を使用
-              </Button>
+              {!autoTransition && (
+                <Button 
+                  className="flex-1"
+                  onClick={() => onPhotoCapture?.(capturedImage)}
+                >
+                  <Camera className="w-4 h-4 mr-2" />
+                  この写真を使用
+                </Button>
+              )}
             </>
           ) : (
             <Button 
               className="w-full" 
               size="lg"
               onClick={startCapture}
-              disabled={!isCameraReady || isCapturing || isModelLoading || !runnerId}
+              disabled={!isCameraReady || isCapturing || isAnalyzing || !runnerId}
             >
               <Camera className="w-4 h-4 mr-2" />
               {!runnerId ? "ランナーを検索してください" :
-               isModelLoading ? "顔認識モデルを読み込み中..." :
                !isCameraReady ? 
                 (permissionDenied ? "カメラへのアクセスが必要です" : 
                  isInitializing ? "カメラを初期化中..." :
                  "カメラを起動してください") : 
-                isCapturing ? `${countdown}秒後に撮影` : 
+                isCapturing ? `${countdown}秒後に撮影` :
+                isAnalyzing ? "分析中..." : 
                 "撮影開始"}
             </Button>
           )}

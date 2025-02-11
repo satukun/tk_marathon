@@ -9,7 +9,7 @@ export const supabase = createClient(
   supabaseAnonKey,
   {
     auth: {
-      persistSession: false // WebSocketセッションを無効化
+      persistSession: false
     }
   }
 );
@@ -20,11 +20,12 @@ export type Runner = {
   nickname: string;
   language: string;
   target_time: string;
+  target_time_number: number;
   message: string;
+  message_number: number;
+  upper_phrase: string;
+  lower_phrase: string;
   created_at: string;
-  age_group?: string;
-  gender?: string;
-  runner_name?: string;
   photo_url?: string;
 };
 
@@ -66,50 +67,33 @@ export async function addRunner(runner: {
   nickname: string;
   language: string;
   target_time: string;
+  target_time_number: number;
   message: string;
-  age_group?: string;
-  gender?: string;
-  runner_name?: string;
+  message_number: number;
+  upper_phrase: string;
+  lower_phrase: string;
 }): Promise<void> {
-  const { error: insertError } = await supabase
-    .from('runners')
-    .insert([runner]);
+  try {
+    const { error: insertError } = await supabase
+      .from('runners')
+      .insert([runner]);
 
-  if (insertError) {
-    console.error('Error adding runner:', insertError);
-    throw insertError;
-  }
-
-  const { data: allRunners } = await supabase
-    .from('runners')
-    .select('id, created_at')
-    .order('created_at', { ascending: false });
-
-  if (allRunners && allRunners.length > 10) {
-    const oldRunnerIds = allRunners
-      .slice(10)
-      .map(runner => runner.id);
-
-    if (oldRunnerIds.length > 0) {
-      const { error: deleteError } = await supabase
-        .from('runners')
-        .delete()
-        .in('id', oldRunnerIds);
-
-      if (deleteError) {
-        console.error('Error deleting old runners:', deleteError);
-      }
+    if (insertError) {
+      console.error('Error adding runner:', insertError);
+      throw insertError;
     }
+  } catch (error) {
+    console.error('Failed to add runner:', error);
+    throw error;
   }
 }
 
 export async function updateRunner(
   runnerId: string,
   updates: {
+    photo_url?: string;
     age_group?: string;
     gender?: string;
-    runner_name?: string;
-    photo_url?: string;
   }
 ): Promise<void> {
   const { error } = await supabase
@@ -119,44 +103,6 @@ export async function updateRunner(
 
   if (error) {
     console.error('Error updating runner:', error);
-    throw error;
-  }
-}
-
-export async function uploadRunnerPhoto(
-  runnerId: string, 
-  photoBlob: Blob
-): Promise<string> {
-  const fileName = `${runnerId}_${Date.now()}.jpg`;
-  const filePath = `photos/${fileName}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from('runner-photos')
-    .upload(filePath, photoBlob, {
-      contentType: 'image/jpeg',
-      cacheControl: '3600',
-      upsert: false
-    });
-
-  if (uploadError) {
-    console.error('Error uploading photo:', uploadError);
-    throw uploadError;
-  }
-
-  const { data } = supabase.storage
-    .from('runner-photos')
-    .getPublicUrl(filePath);
-
-  return data.publicUrl;
-}
-
-export async function deleteRunnerPhoto(photoPath: string): Promise<void> {
-  const { error } = await supabase.storage
-    .from('runner-photos')
-    .remove([photoPath]);
-
-  if (error) {
-    console.error('Error deleting photo:', error);
     throw error;
   }
 }

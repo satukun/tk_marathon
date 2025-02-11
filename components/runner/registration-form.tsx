@@ -11,19 +11,32 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import messagesJa from "@/data/messages-array-ja";
+import messagesEn from "@/data/messages-array-en";
 
 const formSchema = z.object({
   nickname: z.string().min(1, "ニックネームは1文字以上で入力してください"),
   language: z.string(),
-  targetTime: z.string().regex(/^\d{2}:\d{2}:\d{2}$/, "時間は HH:MM:SS 形式で入力してください"),
+  targetTime: z.string(),
+  targetTimeNumber: z.number().min(1).max(3),
   message: z.string(),
+  messageNumber: z.number().min(1).max(5),
+  upperPhrase: z.string(),
+  lowerPhrase: z.string(),
 });
 
 const messages = [
-  "初挑戦！完走するぞ！",
-  "自己ベストを更新するぞ！",
-  "東京の街を走ることを楽しみます",
-  "他の国のランナーたちと交流しながら走るのが楽しみです。"
+  { id: 1, text: "初挑戦！完走するぞ！" },
+  { id: 2, text: "自己ベストを更新するぞ！" },
+  { id: 3, text: "東京の街を走ることを楽しみます" },
+  { id: 4, text: "他の国のランナーたちと交流しながら走るのが楽しみです。" },
+  { id: 5, text: "走ることを通じて社会に貢献したい" }
+] as const;
+
+const targetTimes = [
+  { id: 1, text: "2時間台～3時間30分", value: "02:00:00-03:30:00" },
+  { id: 2, text: "3時間30分～5時間", value: "03:30:00-05:00:00" },
+  { id: 3, text: "5時間～", value: "05:00:00-06:00:00" }
 ] as const;
 
 type RegistrationStep = "input" | "confirm" | "complete";
@@ -38,10 +51,41 @@ export function RunnerRegistrationForm() {
     defaultValues: {
       nickname: "",
       language: "ja",
-      targetTime: "04:00:00",
-      message: messages[0],
+      targetTime: targetTimes[1].value,
+      targetTimeNumber: targetTimes[1].id,
+      message: messages[0].text,
+      messageNumber: messages[0].id,
+      upperPhrase: "",
+      lowerPhrase: "",
     },
   });
+
+  const generateMessages = (language: string, messageNumber: number, targetTimeNumber: number) => {
+    try {
+      const messagesArray = language === "ja" ? messagesJa : messagesEn;
+      const messageObj = messagesArray[messageNumber - 1];
+      
+      if (!messageObj) {
+        console.error('Message object not found:', { messageNumber, targetTimeNumber });
+        return { upperPhrase: "", lowerPhrase: "" };
+      }
+
+      const upperPhrase = messageObj.initial[Math.floor(Math.random() * messageObj.initial.length)];
+      
+      const timeArray = messageObj.time[targetTimeNumber - 1];
+      if (!timeArray || !timeArray.length) {
+        console.error('Time array not found:', { messageNumber, targetTimeNumber });
+        return { upperPhrase, lowerPhrase: "" };
+      }
+
+      const lowerPhrase = timeArray[Math.floor(Math.random() * timeArray.length)];
+
+      return { upperPhrase, lowerPhrase };
+    } catch (error) {
+      console.error('Error generating messages:', error);
+      return { upperPhrase: "", lowerPhrase: "" };
+    }
+  };
 
   const handleConfirm = form.handleSubmit(async (values) => {
     try {
@@ -107,6 +151,8 @@ export function RunnerRegistrationForm() {
 
   if (step === "confirm") {
     const values = form.getValues();
+    const selectedTime = targetTimes.find(t => t.value === values.targetTime);
+
     return (
       <Card>
         <CardHeader>
@@ -125,11 +171,16 @@ export function RunnerRegistrationForm() {
             </div>
             <div className="grid grid-cols-3 gap-4 items-center">
               <p className="text-sm font-medium text-muted-foreground">目標タイム</p>
-              <p className="col-span-2">{values.targetTime}</p>
+              <p className="col-span-2">{selectedTime?.text}</p>
             </div>
             <div className="grid grid-cols-3 gap-4 items-center">
               <p className="text-sm font-medium text-muted-foreground">意気込み</p>
               <p className="col-span-2">{values.message}</p>
+            </div>
+            <div className="mt-4 p-4 bg-muted rounded-lg">
+              <p className="text-sm font-medium text-muted-foreground mb-2">生成されたメッセージ</p>
+              <p className="text-lg mb-2">{values.upperPhrase}</p>
+              <p className="text-lg">{values.lowerPhrase}</p>
             </div>
           </div>
           <div className="flex gap-4">
@@ -155,6 +206,19 @@ export function RunnerRegistrationForm() {
     );
   }
 
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    const { upperPhrase, lowerPhrase } = generateMessages(
+      values.language,
+      values.messageNumber,
+      values.targetTimeNumber
+    );
+    
+    form.setValue('upperPhrase', upperPhrase);
+    form.setValue('lowerPhrase', lowerPhrase);
+    
+    setStep("confirm");
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -163,7 +227,7 @@ export function RunnerRegistrationForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(() => setStep("confirm"))} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="nickname"
@@ -206,10 +270,29 @@ export function RunnerRegistrationForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>目標タイム</FormLabel>
-                  <FormControl>
-                    <Input placeholder="HH:MM:SS" {...field} />
-                  </FormControl>
-                  <FormDescription>目標完走時間を入力してください（例：04:00:00）</FormDescription>
+                  <Select 
+                    onValueChange={(value) => {
+                      const selectedTime = targetTimes.find(t => t.value === value);
+                      if (selectedTime) {
+                        form.setValue('targetTime', value);
+                        form.setValue('targetTimeNumber', selectedTime.id);
+                      }
+                    }}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="目標タイムを選択" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {targetTimes.map((time) => (
+                        <SelectItem key={time.id} value={time.value}>
+                          {time.text}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -221,7 +304,16 @@ export function RunnerRegistrationForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>意気込み</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select 
+                    onValueChange={(value) => {
+                      const selectedMessage = messages.find(m => m.text === value);
+                      if (selectedMessage) {
+                        form.setValue('message', value);
+                        form.setValue('messageNumber', selectedMessage.id);
+                      }
+                    }} 
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="意気込みを選択" />
@@ -229,8 +321,8 @@ export function RunnerRegistrationForm() {
                     </FormControl>
                     <SelectContent>
                       {messages.map((message) => (
-                        <SelectItem key={message} value={message}>
-                          {message}
+                        <SelectItem key={message.id} value={message.text}>
+                          {message.text}
                         </SelectItem>
                       ))}
                     </SelectContent>

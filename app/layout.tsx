@@ -1,38 +1,29 @@
-"use client";
-
 import './globals.css';
 import { Toaster } from "sonner";
-import { AnimatePresence } from "framer-motion";
-import { usePathname } from "next/navigation";
 import { Loading } from "@/components/loading";
-import { useState, useEffect } from "react";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [pathname]);
-
   return (
     <html lang="ja">
+      <head>
+        <meta name="application-name" content="マラソン写真システム" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="マラソン写真" />
+        <meta name="description" content="マラソンイベントのリアルタイム撮影・画像処理システム" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#000000" />
+
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="manifest" href="/manifest.json" />
+      </head>
       <body className="font-sans">
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <Loading key="loading" />
-          ) : (
-            children
-          )}
-        </AnimatePresence>
+        {children}
         <Toaster />
       </body>
     </html>
