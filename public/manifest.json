@@ -3,9 +3,39 @@
   "short_name": "マラソン写真",
   "description": "マラソンイベントのリアルタイム撮影・画像処理システム",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
+  "orientation": "portrait",
+  "shortcuts": [
+    {
+      "name": "ランナー登録",
+      "short_name": "登録",
+      "description": "マラソン参加者の登録",
+      "url": "/runner",
+      "icons": [
+        {
+          "src": "/icons/register-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "ランナー検索",
+      "short_name": "検索",
+      "description": "ランナー情報の検索",
+      "url": "/staff/search",
+      "icons": [
+        {
+          "src": "/icons/search-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-192x192.png",

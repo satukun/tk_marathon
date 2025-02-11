@@ -1,6 +1,5 @@
 import './globals.css';
 import { Toaster } from "sonner";
-import { Loading } from "@/components/loading";
 
 export default function RootLayout({
   children,
@@ -18,9 +17,11 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#000000" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        {/* PWA設定 */}
         <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className="font-sans">
         {children}
