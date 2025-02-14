@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageTransition } from "@/components/page-transition";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
   const router = useRouter();
   const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const handleNavigation = (route: string) => {
     setLoadingRoute(route);
@@ -20,45 +22,45 @@ export default function Home() {
   return (
     <PageTransition>
       <main className="min-h-screen bg-gradient-to-b from-background to-muted">
-        <div className="container mx-auto px-4 py-8">
-          <header className="mb-8 text-center">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Camera className="w-8 h-8 text-primary" />
-              <h1 className="text-4xl font-bold tracking-tight">マラソン写真システム</h1>
+        <div className="ipad-container">
+          <header className="mb-12 text-center">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <Camera className="w-12 h-12 text-primary" />
+              <h1 className="text-5xl font-bold tracking-tight">{t('common.title')}</h1>
             </div>
-            <p className="text-muted-foreground">マラソンイベントのリアルタイム撮影・画像処理システム</p>
+            <p className="text-xl text-muted-foreground">{t('common.description')}</p>
           </header>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <Card>
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <Card className="ipad-card">
               <CardHeader>
-                <CardTitle>ランナー登録</CardTitle>
-                <CardDescription>マラソン参加者の方はこちら</CardDescription>
+                <CardTitle className="text-3xl">{t('home.runnerRegistration.title')}</CardTitle>
+                <CardDescription className="text-lg">{t('home.runnerRegistration.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button 
-                  className="w-full" 
+                  className="w-full ipad-button" 
                   onClick={() => handleNavigation("/runner")}
                   disabled={loadingRoute !== null}
                 >
-                  {loadingRoute === "/runner" ? "読み込み中..." : "登録画面へ"}
+                  {loadingRoute === "/runner" ? t('common.loading') : t('home.runnerRegistration.button')}
                 </Button>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="ipad-card">
               <CardHeader>
-                <CardTitle>ランナー検索</CardTitle>
-                <CardDescription>写真確認・検索はこちら</CardDescription>
+                <CardTitle className="text-3xl">{t('home.runnerSearch.title')}</CardTitle>
+                <CardDescription className="text-lg">{t('home.runnerSearch.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button 
-                  className="w-full" 
+                  className="w-full ipad-button" 
                   variant="outline"
                   onClick={() => handleNavigation("/staff/search")}
                   disabled={loadingRoute !== null}
                 >
-                  {loadingRoute === "/staff/search" ? "読み込み中..." : "検索画面へ"}
+                  {loadingRoute === "/staff/search" ? t('common.loading') : t('home.runnerSearch.button')}
                 </Button>
               </CardContent>
             </Card>

@@ -1,43 +1,37 @@
-"use client";
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import messagesJa from "@/data/messages-array-ja";
 import messagesEn from "@/data/messages-array-en";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 const formSchema = z.object({
   nickname: z.string().min(1, "ニックネームは1文字以上で入力してください"),
-  language: z.string(),
   targetTime: z.string(),
+  targetTimeInput: z.string()
+    .min(6, "目標タイムは必須です")
+    .regex(/^\d{6}$/, "6桁の数字を入力してください")
+    .refine((val) => {
+      const hours = parseInt(val.substring(0, 2));
+      const minutes = parseInt(val.substring(2, 4));
+      const seconds = parseInt(val.substring(4, 6));
+      return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 && seconds >= 0 && seconds <= 59;
+    }, "正しい時間形式で入力してください"),
   targetTimeNumber: z.number().min(1).max(3),
-  message: z.string(),
+  messageKey: z.string(),
   messageNumber: z.number().min(1).max(5),
   upperPhrase: z.string(),
   lowerPhrase: z.string(),
 });
-
-const messages = [
-  { id: 1, text: "初挑戦！完走するぞ！" },
-  { id: 2, text: "自己ベストを更新するぞ！" },
-  { id: 3, text: "東京の街を走ることを楽しみます" },
-  { id: 4, text: "他の国のランナーたちと交流しながら走るのが楽しみです。" },
-  { id: 5, text: "走ることを通じて社会に貢献したい" }
-] as const;
-
-const targetTimes = [
-  { id: 1, text: "2時間台～3時間30分", value: "02:00:00-03:30:00" },
-  { id: 2, text: "3時間30分～5時間", value: "03:30:00-05:00:00" },
-  { id: 3, text: "5時間～", value: "05:00:00-06:00:00" }
-] as const;
 
 type RegistrationStep = "input" | "confirm" | "complete";
 
@@ -45,24 +39,69 @@ export function RunnerRegistrationForm() {
   const [step, setStep] = useState<RegistrationStep>("input");
   const [runnerId, setRunnerId] = useState<string>("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const { t, i18n } = useTranslation();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       nickname: "",
-      language: "ja",
-      targetTime: targetTimes[1].value,
-      targetTimeNumber: targetTimes[1].id,
-      message: messages[0].text,
-      messageNumber: messages[0].id,
+      targetTime: "04:00:00",
+      targetTimeInput: "040000",
+      targetTimeNumber: 2,
+      messageKey: "registration.form.message.options.1",
+      messageNumber: 1,
       upperPhrase: "",
       lowerPhrase: "",
     },
   });
 
-  const generateMessages = (language: string, messageNumber: number, targetTimeNumber: number) => {
+  const formatTimeString = (input: string): string => {
+    const hours = input.substring(0, 2);
+    const minutes = input.substring(2, 4);
+    const seconds = input.substring(4, 6);
+    return i18n.language === "ja" 
+      ? `${hours}時間${minutes}分${seconds}秒`
+      : `${hours}:${minutes}:${seconds}`;
+  };
+
+  const handleTimeInputBlur = (value: string) => {
+    if (!value) {
+      form.setValue('targetTimeInput', '040000');
+      form.setValue('targetTime', '04:00:00');
+      form.setValue('targetTimeNumber', 2);
+      return;
+    }
+
+    const paddedValue = value.padStart(6, '0');
+    const hours = parseInt(paddedValue.substring(0, 2));
+    const minutes = parseInt(paddedValue.substring(2, 4));
+    const seconds = parseInt(paddedValue.substring(4, 6));
+
+    if (paddedValue.length === 6 && hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 && seconds >= 0 && seconds <= 59) {
+      const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      form.setValue('targetTime', formattedTime);
+      
+      const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+      let timeNumber;
+      if (totalSeconds <= 12600) { // 3時間30分 = 12600秒
+        timeNumber = 1;
+      } else if (totalSeconds <= 18000) { // 5時間 = 18000秒
+        timeNumber = 2;
+      } else {
+        timeNumber = 3;
+      }
+      form.setValue('targetTimeNumber', timeNumber);
+    } else if (paddedValue.length === 6) {
+      form.setValue('targetTimeInput', '040000');
+      form.setValue('targetTime', '04:00:00');
+      form.setValue('targetTimeNumber', 2);
+      toast.error(t('registration.form.targetTime.error.invalid'));
+    }
+  };
+
+  const generateMessages = (messageNumber: number, targetTimeNumber: number) => {
     try {
-      const messagesArray = language === "ja" ? messagesJa : messagesEn;
+      const messagesArray = i18n.language === "ja" ? messagesJa : messagesEn;
       const messageObj = messagesArray[messageNumber - 1];
       
       if (!messageObj) {
@@ -93,21 +132,25 @@ export function RunnerRegistrationForm() {
       const response = await fetch("/api/runners", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          message: t(values.messageKey),
+          language: i18n.language
+        }),
       });
 
       if (!response.ok) {
-        throw new Error("登録に失敗しました");
+        throw new Error(t('registration.error.failed'));
       }
 
       const data = await response.json();
       setRunnerId(data.runnerId);
       setStep("complete");
-      toast.success("ランナー登録が完了しました");
+      toast.success(t('registration.success.registered'));
     } catch (error) {
-      console.error("登録エラー:", error);
-      toast.error("登録に失敗しました", {
-        description: "もう一度お試しください",
+      console.error("Registration error:", error);
+      toast.error(t('registration.error.failed'), {
+        description: t('registration.error.tryAgain'),
       });
       setStep("input");
     } finally {
@@ -115,70 +158,64 @@ export function RunnerRegistrationForm() {
     }
   });
 
-  if (step === "complete") {
-    return (
-      <Card className="text-center">
-        <CardHeader>
-          <div className="flex justify-center mb-4">
-            <CheckCircle2 className="w-12 h-12 text-green-500" />
-          </div>
-          <CardTitle>登録完了</CardTitle>
-          <CardDescription>ランナー登録が完了しました</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">あなたのランナーID</p>
-            <p className="text-2xl font-bold">{runnerId}</p>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            <p>このIDは写真撮影時に必要となります。</p>
-            <p>必ず控えておいてください。</p>
-          </div>
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={() => {
-              form.reset();
-              setStep("input");
-            }}
-          >
-            新しい登録へ
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
+  const renderComplete = () => (
+    <Card className="text-center">
+      <CardHeader>
+        <div className="flex justify-center mb-4">
+          <CheckCircle2 className="w-12 h-12 text-green-500" />
+        </div>
+        <CardTitle>{t('registration.complete.title')}</CardTitle>
+        <CardDescription>{t('registration.complete.description')}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="p-4 bg-muted rounded-lg">
+          <p className="text-sm text-muted-foreground mb-2">{t('registration.complete.runnerId')}</p>
+          <p className="text-2xl font-bold">{runnerId}</p>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          <p>{t('registration.complete.notice.save')}</p>
+          <p>{t('registration.complete.notice.required')}</p>
+        </div>
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={() => {
+            form.reset();
+            setStep("input");
+          }}
+        >
+          {t('registration.complete.button')}
+        </Button>
+      </CardContent>
+    </Card>
+  );
 
-  if (step === "confirm") {
+  const renderConfirm = () => {
     const values = form.getValues();
-    const selectedTime = targetTimes.find(t => t.value === values.targetTime);
+    const formattedTime = formatTimeString(values.targetTimeInput);
 
     return (
       <Card>
         <CardHeader>
-          <CardTitle>入力内容の確認</CardTitle>
-          <CardDescription>以下の内容で登録を行います</CardDescription>
+          <CardTitle>{t('registration.confirmation.title')}</CardTitle>
+          <CardDescription>{t('registration.confirmation.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-4">
             <div className="grid grid-cols-3 gap-4 items-center">
-              <p className="text-sm font-medium text-muted-foreground">ニックネーム</p>
+              <p className="text-sm font-medium text-muted-foreground">{t('registration.form.nickname.label')}</p>
               <p className="col-span-2">{values.nickname}</p>
             </div>
             <div className="grid grid-cols-3 gap-4 items-center">
-              <p className="text-sm font-medium text-muted-foreground">表示言語</p>
-              <p className="col-span-2">{values.language === "ja" ? "日本語" : "英語"}</p>
+              <p className="text-sm font-medium text-muted-foreground">{t('registration.form.targetTime.label')}</p>
+              <p className="col-span-2">{formattedTime}</p>
             </div>
             <div className="grid grid-cols-3 gap-4 items-center">
-              <p className="text-sm font-medium text-muted-foreground">目標タイム</p>
-              <p className="col-span-2">{selectedTime?.text}</p>
-            </div>
-            <div className="grid grid-cols-3 gap-4 items-center">
-              <p className="text-sm font-medium text-muted-foreground">意気込み</p>
-              <p className="col-span-2">{values.message}</p>
+              <p className="text-sm font-medium text-muted-foreground">{t('registration.form.message.label')}</p>
+              <p className="col-span-2">{t(values.messageKey)}</p>
             </div>
             <div className="mt-4 p-4 bg-muted rounded-lg">
-              <p className="text-sm font-medium text-muted-foreground mb-2">生成されたメッセージ</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">{t('registration.confirmation.generatedMessage')}</p>
               <p className="text-lg mb-2">{values.upperPhrase}</p>
               <p className="text-lg">{values.lowerPhrase}</p>
             </div>
@@ -191,24 +228,118 @@ export function RunnerRegistrationForm() {
               disabled={isRegistering}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              修正する
+              {t('registration.confirmation.button.modify')}
             </Button>
             <Button 
               className="flex-1" 
               onClick={handleConfirm}
               disabled={isRegistering}
             >
-              {isRegistering ? "登録中..." : "登録する"}
+              {isRegistering ? t('common.loading') : t('registration.confirmation.button.register')}
             </Button>
           </div>
         </CardContent>
       </Card>
     );
-  }
+  };
+
+  const renderForm = () => (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <CardTitle>{t('registration.title')}</CardTitle>
+          <LanguageSwitcher />
+        </div>
+        <CardDescription>{t('registration.form.description')}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="nickname"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('registration.form.nickname.label')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t('registration.form.nickname.placeholder')} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="targetTimeInput"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('registration.form.targetTime.label')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="040000"
+                      maxLength={6}
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        field.onChange(value);
+                      }}
+                      onBlur={(e) => {
+                        field.onBlur();
+                        handleTimeInputBlur(e.target.value);
+                      }}
+                    />
+                  </FormControl>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('registration.form.targetTime.format')}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="messageKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('registration.form.message.label')}</FormLabel>
+                  <Select 
+                    onValueChange={(value) => {
+                      const messageNumber = parseInt(value);
+                      const messageKey = `registration.form.message.options.${value}`;
+                      form.setValue('messageKey', messageKey);
+                      form.setValue('messageNumber', messageNumber);
+                    }}
+                    defaultValue="1"
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('registration.form.message.placeholder')} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {t(`registration.form.message.options.${num}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full">{t('registration.form.submit')}</Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const { upperPhrase, lowerPhrase } = generateMessages(
-      values.language,
       values.messageNumber,
       values.targetTimeNumber
     );
@@ -219,123 +350,13 @@ export function RunnerRegistrationForm() {
     setStep("confirm");
   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>ランナー登録</CardTitle>
-        <CardDescription>マラソンイベントの参加情報を登録してください</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="nickname"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>ニックネーム</FormLabel>
-                  <FormControl>
-                    <Input placeholder="ニックネームを入力" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+  if (step === "complete") {
+    return renderComplete();
+  }
 
-            <FormField
-              control={form.control}
-              name="language"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>表示言語</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="言語を選択" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="ja">日本語</SelectItem>
-                      <SelectItem value="en">英語</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+  if (step === "confirm") {
+    return renderConfirm();
+  }
 
-            <FormField
-              control={form.control}
-              name="targetTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>目標タイム</FormLabel>
-                  <Select 
-                    onValueChange={(value) => {
-                      const selectedTime = targetTimes.find(t => t.value === value);
-                      if (selectedTime) {
-                        form.setValue('targetTime', value);
-                        form.setValue('targetTimeNumber', selectedTime.id);
-                      }
-                    }}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="目標タイムを選択" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {targetTimes.map((time) => (
-                        <SelectItem key={time.id} value={time.value}>
-                          {time.text}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>意気込み</FormLabel>
-                  <Select 
-                    onValueChange={(value) => {
-                      const selectedMessage = messages.find(m => m.text === value);
-                      if (selectedMessage) {
-                        form.setValue('message', value);
-                        form.setValue('messageNumber', selectedMessage.id);
-                      }
-                    }} 
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="意気込みを選択" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {messages.map((message) => (
-                        <SelectItem key={message.id} value={message.text}>
-                          {message.text}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" className="w-full">確認画面へ</Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
-  );
+  return renderForm();
 }

@@ -1,0 +1,175 @@
+{
+  "common": {
+    "title": "マラソン写真システム",
+    "description": "マラソンイベントのリアルタイム撮影・画像処理システム",
+    "back": "戻る",
+    "backToTop": "トップに戻る",
+    "loading": "読み込み中...",
+    "search": "検索",
+    "submit": "送信",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "retry": "再試行",
+    "error": "エラー",
+    "success": "成功"
+  },
+  "home": {
+    "runnerRegistration": {
+      "title": "ランナー登録",
+      "description": "マラソン参加者の方はこちら",
+      "button": "登録画面へ"
+    },
+    "runnerSearch": {
+      "title": "ランナー検索",
+      "description": "写真確認・検索はこちら",
+      "button": "検索画面へ"
+    }
+  },
+  "registration": {
+    "title": "ランナー登録",
+    "form": {
+      "description": "マラソンイベントの参加情報を登録してください",
+      "submit": "確認画面へ",
+      "nickname": {
+        "label": "ニックネーム",
+        "placeholder": "ニックネームを入力"
+      },
+      "language": {
+        "label": "表示言語",
+        "japanese": "日本語",
+        "english": "英語"
+      },
+      "targetTime": {
+        "label": "目標タイム",
+        "placeholder": "目標タイムを選択",
+        "format": "6桁の数字で入力してください（例：033000 → 03時間30分00秒）",
+        "error": {
+          "invalid": "正しい時間形式で入力してください"
+        }
+      },
+      "message": {
+        "label": "意気込み",
+        "placeholder": "意気込みを選択",
+        "options": {
+          "1": "初挑戦！完走するぞ！",
+          "2": "自己ベストを更新するぞ！",
+          "3": "東京の街を走ることを楽しみます",
+          "4": "他の国のランナーたちと交流しながら走るのが楽しみです",
+          "5": "走ることを通じて社会に貢献したい"
+        }
+      }
+    },
+    "confirmation": {
+      "title": "入力内容の確認",
+      "description": "以下の内容で登録を行います",
+      "generatedMessage": "生成されたメッセージ",
+      "button": {
+        "modify": "修正する",
+        "register": "登録する"
+      }
+    },
+    "complete": {
+      "title": "登録完了",
+      "description": "ランナー登録が完了しました",
+      "runnerId": "あなたのランナーID",
+      "notice": {
+        "save": "このIDは必ず控えておいてください。",
+        "required": "写真撮影時に必要となります。"
+      },
+      "button": "新しい登録へ"
+    },
+    "error": {
+      "failed": "登録に失敗しました",
+      "tryAgain": "もう一度お試しください"
+    },
+    "success": {
+      "registered": "ランナー登録が完了しました"
+    }
+  },
+  "search": {
+    "title": "ランナー検索",
+    "form": {
+      "runnerId": {
+        "label": "ランナーIDを入力してください",
+        "placeholder": "ランナーIDを入力"
+      }
+    },
+    "result": {
+      "title": "ランナー情報",
+      "description": "ランナー {id} の詳細情報",
+      "fields": {
+        "nickname": "ニックネーム",
+        "targetTime": "目標タイム",
+        "language": "表示言語",
+        "message": "意気込み"
+      }
+    },
+    "camera": {
+      "title": "カメラプレビュー",
+      "description": "撮影の準備ができています",
+      "button": {
+        "start": "撮影を開始する",
+        "stop": "カメラを停止",
+        "capture": "撮影",
+        "retake": "撮り直す",
+        "use": "この写真を使用"
+      }
+    },
+    "confirming": {
+      "title": "写真を確認中",
+      "description": "写真を処理しています...",
+      "processing": "写真を確認中...",
+      "wait": "しばらくお待ちください"
+    },
+    "complete": {
+      "title": "撮影完了",
+      "description": "写真の確認",
+      "targetTime": "目標タイム: {time}",
+      "photoAlt": "撮影した写真",
+      "newSearch": "新しいランナーを検索"
+    },
+    "error": {
+      "emptyId": "ランナーIDを入力してください",
+      "notFound": "ランナーが見つかりません",
+      "checkId": "IDを確認して再度お試しください"
+    },
+    "success": {
+      "found": "ランナーを見つけました！"
+    }
+  },
+  "camera": {
+    "select": {
+      "placeholder": "カメラを選択",
+      "defaultLabel": "カメラ {id}..."
+    },
+    "autoTransition": {
+      "label": "撮影後に自動で確認画面へ遷移"
+    },
+    "image": {
+      "alt": "撮影した写真"
+    },
+    "info": {
+      "start": "カメラを起動してください",
+      "initializing": "カメラを初期化中...",
+      "analyzing": "写真を分析中...",
+      "countdown": "撮影まであと{seconds}秒",
+      "capturing": "{seconds}秒後に撮影"
+    },
+    "error": {
+      "noRunner": "ランナーを検索してください",
+      "notReady": "カメラが準備できていません",
+      "permissionDenied": "カメラへのアクセスが拒否されました",
+      "permissionRequired": "カメラへのアクセスを許可してください",
+      "initFailed": "カメラの初期化に失敗しました",
+      "reinitFailed": "カメラの再起動に失敗しました",
+      "tryAnotherCamera": "別のカメラを試すか、ページを再読み込みしてください"
+    },
+    "success": {
+      "ready": "カメラの準備ができました",
+      "stopped": "カメラを停止しました",
+      "startCapture": "撮影を開始します",
+      "captured": "撮影完了！",
+      "retake": "撮影をやり直します"
+    }
+  }
+}

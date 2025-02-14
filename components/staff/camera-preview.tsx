@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
 
 interface CameraPreviewProps {
   autoInit?: boolean;
@@ -29,6 +30,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
   const [selectedDevice, setSelectedDevice] = useState<string>("");
   const [isInitializing, setIsInitializing] = useState(false);
   const [autoTransition, setAutoTransition] = useState(false);
+  const { t } = useTranslation();
 
   const initCamera = async (deviceId?: string) => {
     try {
@@ -58,18 +60,18 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
           setSelectedDevice(videoDevices[0].deviceId);
         }
         
-        toast.success("カメラの準備ができました");
+        toast.success(t('camera.success.ready'));
       }
     } catch (error) {
-      console.error("カメラの初期化エラー:", error);
+      console.error("Camera initialization error:", error);
       if ((error as Error).name === 'NotAllowedError') {
         setPermissionDenied(true);
-        toast.error("カメラへのアクセスが拒否されました", {
-          description: "設定からカメラへのアクセスを許可してください"
+        toast.error(t('camera.error.permissionDenied'), {
+          description: t('camera.error.permissionRequired')
         });
       } else {
-        toast.error("カメラの初期化に失敗しました", {
-          description: "別のカメラを試すか、ページを再読み込みしてください"
+        toast.error(t('camera.error.initFailed'), {
+          description: t('camera.error.tryAnotherCamera')
         });
       }
     } finally {
@@ -83,13 +85,13 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
       stream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
       setIsCameraReady(false);
-      toast.success("カメラを停止しました");
+      toast.success(t('camera.success.stopped'));
     }
   };
 
   const startCapture = () => {
     if (!isCameraReady) {
-      toast.error("カメラが準備できていません");
+      toast.error(t('camera.error.notReady'));
       return;
     }
 
@@ -97,8 +99,8 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
     setCountdown(5);
     setCapturedImage(null);
 
-    toast.success("撮影を開始します", {
-      description: "カウントダウンが始まります"
+    toast.success(t('camera.success.startCapture'), {
+      description: t('camera.info.countdown')
     });
 
     const timer = setInterval(() => {
@@ -130,13 +132,11 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
       setCapturedImage(imageUrl);
 
       if (autoTransition) {
-        // 自動遷移の場合は即座に写真を送信
         onPhotoCapture?.(imageUrl);
       } else {
-        // 手動遷移の場合は分析中の表示のみ
         setTimeout(() => {
           setIsAnalyzing(false);
-          toast.success("撮影完了！");
+          toast.success(t('camera.success.captured'));
         }, 3000);
       }
     }
@@ -148,10 +148,10 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
       setIsCapturing(false);
       setIsAnalyzing(false);
       await initCamera(selectedDevice);
-      toast.success("撮影をやり直します");
+      toast.success(t('camera.success.retake'));
     } catch (error) {
-      console.error("カメラの再初期化エラー:", error);
-      toast.error("カメラの再起動に失敗しました");
+      console.error("Camera reinitialization error:", error);
+      toast.error(t('camera.error.reinitFailed'));
     }
   };
 
@@ -164,13 +164,13 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>カメラプレビュー</CardTitle>
+        <CardTitle>{t('search.camera.title')}</CardTitle>
         <CardDescription>
-          {!runnerId ? "ランナーを検索してください" :
-           isCameraReady ? "撮影の準備ができています" : 
-           permissionDenied ? "カメラへのアクセスが拒否されています" : 
-           isInitializing ? "カメラを初期化中..." :
-           "カメラを起動してください"}
+          {!runnerId ? t('camera.error.noRunner') :
+           isCameraReady ? t('search.camera.description') : 
+           permissionDenied ? t('camera.error.permissionDenied') : 
+           isInitializing ? t('camera.info.initializing') :
+           t('camera.info.start')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -186,12 +186,12 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
             className="flex-1"
           >
             <SelectTrigger>
-              <SelectValue placeholder="カメラを選択" />
+              <SelectValue placeholder={t('camera.select.placeholder')} />
             </SelectTrigger>
             <SelectContent>
               {devices.map((device) => (
                 <SelectItem key={device.deviceId} value={device.deviceId}>
-                  {device.label || `カメラ ${device.deviceId.slice(0, 8)}...`}
+                  {device.label || t('camera.select.defaultLabel', { id: device.deviceId.slice(0, 8) })}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -202,19 +202,19 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
               disabled={isInitializing || !runnerId}
             >
               <Camera className="w-4 h-4 mr-2" />
-              カメラを起動
+              {t('search.camera.button.start')}
             </Button>
           ) : (
             <Button variant="outline" onClick={stopCamera}>
               <RefreshCcw className="w-4 h-4 mr-2" />
-              カメラを停止
+              {t('search.camera.button.stop')}
             </Button>
           )}
         </div>
 
         <div className="flex items-center justify-between space-x-2 py-2">
           <Label htmlFor="auto-transition" className="text-sm font-medium">
-            撮影後に自動で確認画面へ遷移
+            {t('camera.autoTransition.label')}
           </Label>
           <Switch
             id="auto-transition"
@@ -227,7 +227,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
           {capturedImage ? (
             <img
               src={capturedImage}
-              alt="撮影画像"
+              alt={t('camera.image.alt')}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -245,10 +245,10 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
               <div className="text-center">
                 <Camera className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p className="text-lg opacity-75">
-                  {!runnerId ? "ランナーを検索してください" :
-                   permissionDenied ? "カメラへのアクセスが拒否されています" : 
-                   isInitializing ? "カメラを初期化中..." :
-                   "カメラを起動してください"}
+                  {!runnerId ? t('camera.error.noRunner') :
+                   permissionDenied ? t('camera.error.permissionDenied') : 
+                   isInitializing ? t('camera.info.initializing') :
+                   t('camera.info.start')}
                 </p>
               </div>
             </div>
@@ -264,7 +264,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
             <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
               <div className="text-center text-white">
                 <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-lg font-semibold">写真を分析中...</p>
+                <p className="text-lg font-semibold">{t('camera.info.analyzing')}</p>
               </div>
             </div>
           )}
@@ -274,7 +274,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
           <div className="space-y-2">
             <Progress value={(5 - countdown) * 20} />
             <p className="text-center text-sm text-muted-foreground">
-              {countdown}秒後に撮影します
+              {t('camera.info.countdown')}
             </p>
           </div>
         )}
@@ -288,7 +288,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
                 onClick={retakePhoto}
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
-                撮り直す
+                {t('search.camera.button.retake')}
               </Button>
               {!autoTransition && (
                 <Button 
@@ -296,7 +296,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
                   onClick={() => onPhotoCapture?.(capturedImage)}
                 >
                   <Camera className="w-4 h-4 mr-2" />
-                  この写真を使用
+                  {t('search.camera.button.use')}
                 </Button>
               )}
             </>
@@ -308,14 +308,14 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
               disabled={!isCameraReady || isCapturing || isAnalyzing || !runnerId}
             >
               <Camera className="w-4 h-4 mr-2" />
-              {!runnerId ? "ランナーを検索してください" :
+              {!runnerId ? t('camera.error.noRunner') :
                !isCameraReady ? 
-                (permissionDenied ? "カメラへのアクセスが必要です" : 
-                 isInitializing ? "カメラを初期化中..." :
-                 "カメラを起動してください") : 
-                isCapturing ? `${countdown}秒後に撮影` :
-                isAnalyzing ? "分析中..." : 
-                "撮影開始"}
+                (permissionDenied ? t('camera.error.permissionRequired') : 
+                 isInitializing ? t('camera.info.initializing') :
+                 t('camera.info.start')) : 
+                isCapturing ? t('camera.info.capturing', { seconds: countdown }) :
+                isAnalyzing ? t('camera.info.analyzing') : 
+                t('search.camera.button.capture')}
             </Button>
           )}
         </div>
