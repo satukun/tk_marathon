@@ -156,7 +156,7 @@
       "capturing": "Capturing in {seconds} seconds"
     },
     "error": {
-      "noRunner": "Please search for a participant first",
+      "noParticipant": "Please search for a participant first",
       "notReady": "Camera is not ready",
       "permissionDenied": "Camera access denied",
       "permissionRequired": "Please allow camera access",

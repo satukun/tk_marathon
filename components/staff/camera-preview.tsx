@@ -166,7 +166,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
       <CardHeader>
         <CardTitle>{t('search.camera.title')}</CardTitle>
         <CardDescription>
-          {!runnerId ? t('camera.error.noRunner') :
+          {!runnerId ? t('camera.error.noParticipant') :
            isCameraReady ? t('search.camera.description') : 
            permissionDenied ? t('camera.error.permissionDenied') : 
            isInitializing ? t('camera.info.initializing') :
@@ -245,7 +245,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
               <div className="text-center">
                 <Camera className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p className="text-lg opacity-75">
-                  {!runnerId ? t('camera.error.noRunner') :
+                  {!runnerId ? t('camera.error.noParticipant') :
                    permissionDenied ? t('camera.error.permissionDenied') : 
                    isInitializing ? t('camera.info.initializing') :
                    t('camera.info.start')}
@@ -308,7 +308,7 @@ export function CameraPreview({ autoInit = false, runnerId = "", onPhotoCapture 
               disabled={!isCameraReady || isCapturing || isAnalyzing || !runnerId}
             >
               <Camera className="w-4 h-4 mr-2" />
-              {!runnerId ? t('camera.error.noRunner') :
+              {!runnerId ? t('camera.error.noParticipant') :
                !isCameraReady ? 
                 (permissionDenied ? t('camera.error.permissionRequired') : 
                  isInitializing ? t('camera.info.initializing') :

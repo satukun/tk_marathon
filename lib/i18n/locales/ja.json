@@ -156,7 +156,7 @@
       "capturing": "{seconds}秒後に撮影"
     },
     "error": {
-      "noRunner": "参加者を検索してください",
+      "noParticipant": "参加者を検索してください",
       "notReady": "カメラが準備できていません",
       "permissionDenied": "カメラへのアクセスが拒否されました",
       "permissionRequired": "カメラへのアクセスを許可してください",
