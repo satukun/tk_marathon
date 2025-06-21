@@ -2,6 +2,8 @@
   "common": {
     "title": "マラソン写真システム",
     "description": "マラソンイベントのリアルタイム撮影・画像処理システム",
+    "mainHeading": "最高の瞬間を撮影",
+    "subHeading": "あなたの頑張りを記録に残そう",
     "back": "戻る",
     "backToTop": "トップに戻る",
     "loading": "読み込み中...",

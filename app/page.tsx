@@ -24,9 +24,18 @@ export default function Home() {
       <main className="min-h-screen bg-gradient-to-b from-background to-muted">
         <div className="ipad-container">
           <header className="mb-12 text-center">
+            <div className="mb-8">
+              <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-primary mb-4">
+                {t('common.mainHeading')}
+              </h1>
+              <p className="text-2xl md:text-3xl font-medium text-muted-foreground mb-6">
+                {t('common.subHeading')}
+              </p>
+            </div>
+            
             <div className="flex items-center justify-center gap-4 mb-6">
               <Camera className="w-12 h-12 text-primary" />
-              <h1 className="text-5xl font-bold tracking-tight">{t('common.title')}</h1>
+              <h2 className="text-4xl font-bold tracking-tight">{t('common.title')}</h2>
             </div>
             <p className="text-xl text-muted-foreground">{t('common.description')}</p>
           </header>

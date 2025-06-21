@@ -2,6 +2,8 @@
   "common": {
     "title": "Marathon Photo System",
     "description": "Real-time photography and image processing system for marathon events",
+    "mainHeading": "Capture Your Best Moments",
+    "subHeading": "Let's record your hard work and dedication",
     "back": "Back",
     "backToTop": "Back to Top",
     "loading": "Loading...",
