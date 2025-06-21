@@ -10,7 +10,7 @@ export async function GET(
 
     if (!runner) {
       return NextResponse.json(
-        { error: "ランナーが見つかりません" },
+        { error: "参加者が見つかりません" },
         { status: 404 }
       );
     }
@@ -31,7 +31,7 @@ export async function GET(
     }
     
     return NextResponse.json(
-      { error: "ランナー情報の取得に失敗しました" },
+      { error: "参加者情報の取得に失敗しました" },
       { status: 500 }
     );
   }

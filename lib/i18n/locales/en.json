@@ -15,18 +15,18 @@
   },
   "home": {
     "runnerRegistration": {
-      "title": "Runner Registration",
+      "title": "Participant Registration",
       "description": "For marathon participants",
       "button": "Go to Registration"
     },
     "runnerSearch": {
-      "title": "Runner Search",
+      "title": "Participant Search",
       "description": "Check and search photos",
       "button": "Go to Search"
     }
   },
   "registration": {
-    "title": "Runner Registration",
+    "title": "Participant Registration",
     "form": {
       "description": "Please register your marathon event participation information",
       "submit": "Proceed to Confirmation",
@@ -70,8 +70,8 @@
     },
     "complete": {
       "title": "Registration Complete",
-      "description": "Runner registration has been completed",
-      "runnerId": "Your Runner ID",
+      "description": "Participant registration has been completed",
+      "runnerId": "Your Participant ID",
       "notice": {
         "save": "Please make sure to save this ID.",
         "required": "This ID will be required when taking photos."
@@ -83,20 +83,20 @@
       "tryAgain": "Please try again"
     },
     "success": {
-      "registered": "Runner registration completed"
+      "registered": "Participant registration completed"
     }
   },
   "search": {
-    "title": "Runner Search",
+    "title": "Participant Search",
     "form": {
       "runnerId": {
-        "label": "Please enter Runner ID",
-        "placeholder": "Enter Runner ID"
+        "label": "Please enter Participant ID",
+        "placeholder": "Enter Participant ID"
       }
     },
     "result": {
-      "title": "Runner Information",
-      "description": "Details for Runner {id}",
+      "title": "Participant Information",
+      "description": "Details for Participant {id}",
       "fields": {
         "nickname": "Nickname",
         "targetTime": "Target Time",
@@ -126,15 +126,15 @@
       "description": "Photo Confirmation",
       "targetTime": "Target Time: {time}",
       "photoAlt": "Captured photo",
-      "newSearch": "Search New Runner"
+      "newSearch": "Search New Participant"
     },
     "error": {
-      "emptyId": "Please enter a Runner ID",
-      "notFound": "Runner not found",
+      "emptyId": "Please enter a Participant ID",
+      "notFound": "Participant not found",
       "checkId": "Please check the ID and try again"
     },
     "success": {
-      "found": "Runner found!"
+      "found": "Participant found!"
     }
   },
   "camera": {
@@ -156,7 +156,7 @@
       "capturing": "Capturing in {seconds} seconds"
     },
     "error": {
-      "noRunner": "Please search for a runner first",
+      "noRunner": "Please search for a participant first",
       "notReady": "Camera is not ready",
       "permissionDenied": "Camera access denied",
       "permissionRequired": "Please allow camera access",

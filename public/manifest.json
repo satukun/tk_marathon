@@ -10,7 +10,7 @@
   "orientation": "portrait",
   "shortcuts": [
     {
-      "name": "ランナー登録",
+      "name": "参加者登録",
       "short_name": "登録",
       "description": "マラソン参加者の登録",
       "url": "/runner",
@@ -23,9 +23,9 @@
       ]
     },
     {
-      "name": "ランナー検索",
+      "name": "参加者検索",
       "short_name": "検索",
-      "description": "ランナー情報の検索",
+      "description": "参加者情報の検索",
       "url": "/staff/search",
       "icons": [
         {

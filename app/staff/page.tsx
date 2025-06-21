@@ -29,8 +29,8 @@ export default function StaffPage() {
           <div className="max-w-3xl mx-auto space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>ランナー検索</CardTitle>
-                <CardDescription>ランナーIDで検索してください</CardDescription>
+                <CardTitle>参加者検索</CardTitle>
+                <CardDescription>参加者IDで検索してください</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href="/staff/search" passHref>

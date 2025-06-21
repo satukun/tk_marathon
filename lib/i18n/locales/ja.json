@@ -15,18 +15,18 @@
   },
   "home": {
     "runnerRegistration": {
-      "title": "ランナー登録",
+      "title": "参加者登録",
       "description": "マラソン参加者の方はこちら",
       "button": "登録画面へ"
     },
     "runnerSearch": {
-      "title": "ランナー検索",
+      "title": "参加者検索",
       "description": "写真確認・検索はこちら",
       "button": "検索画面へ"
     }
   },
   "registration": {
-    "title": "ランナー登録",
+    "title": "参加者登録",
     "form": {
       "description": "マラソンイベントの参加情報を登録してください",
       "submit": "確認画面へ",
@@ -70,8 +70,8 @@
     },
     "complete": {
       "title": "登録完了",
-      "description": "ランナー登録が完了しました",
-      "runnerId": "あなたのランナーID",
+      "description": "参加者登録が完了しました",
+      "runnerId": "あなたの参加者ID",
       "notice": {
         "save": "このIDは必ず控えておいてください。",
         "required": "写真撮影時に必要となります。"
@@ -83,20 +83,20 @@
       "tryAgain": "もう一度お試しください"
     },
     "success": {
-      "registered": "ランナー登録が完了しました"
+      "registered": "参加者登録が完了しました"
     }
   },
   "search": {
-    "title": "ランナー検索",
+    "title": "参加者検索",
     "form": {
       "runnerId": {
-        "label": "ランナーIDを入力してください",
-        "placeholder": "ランナーIDを入力"
+        "label": "参加者IDを入力してください",
+        "placeholder": "参加者IDを入力"
       }
     },
     "result": {
-      "title": "ランナー情報",
-      "description": "ランナー {id} の詳細情報",
+      "title": "参加者情報",
+      "description": "参加者 {id} の詳細情報",
       "fields": {
         "nickname": "ニックネーム",
         "targetTime": "目標タイム",
@@ -126,15 +126,15 @@
       "description": "写真の確認",
       "targetTime": "目標タイム: {time}",
       "photoAlt": "撮影した写真",
-      "newSearch": "新しいランナーを検索"
+      "newSearch": "新しい参加者を検索"
     },
     "error": {
-      "emptyId": "ランナーIDを入力してください",
-      "notFound": "ランナーが見つかりません",
+      "emptyId": "参加者IDを入力してください",
+      "notFound": "参加者が見つかりません",
       "checkId": "IDを確認して再度お試しください"
     },
     "success": {
-      "found": "ランナーを見つけました！"
+      "found": "参加者を見つけました！"
     }
   },
   "camera": {
@@ -156,7 +156,7 @@
       "capturing": "{seconds}秒後に撮影"
     },
     "error": {
-      "noRunner": "ランナーを検索してください",
+      "noRunner": "参加者を検索してください",
       "notReady": "カメラが準備できていません",
       "permissionDenied": "カメラへのアクセスが拒否されました",
       "permissionRequired": "カメラへのアクセスを許可してください",

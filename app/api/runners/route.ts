@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, runnerId }, { status: 201 });
   } catch (error) {
-    console.error("ランナー登録エラー:", error);
+    console.error("参加者登録エラー:", error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     }
     
     return NextResponse.json(
-      { error: "ランナーの登録に失敗しました" },
+      { error: "参加者の登録に失敗しました" },
       { status: 500 }
     );
   }
