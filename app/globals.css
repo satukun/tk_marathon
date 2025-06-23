@@ -110,4 +110,78 @@
   .ipad-select {
     @apply h-14 text-lg rounded-xl;
   }
+
+  /* ヘッダーアニメーション */
+  .header-fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 1s ease-out forwards;
+  }
+
+  .header-icon-spin {
+    animation: spinIn 1.5s ease-out;
+  }
+
+  .header-title-delay {
+    animation-delay: 0.3s;
+  }
+
+  .header-description-delay {
+    animation-delay: 0.8s;
+  }
+
+  .typewriter {
+    overflow: hidden;
+    border-right: 3px solid;
+    white-space: nowrap;
+    animation: typing 2s steps(30, end), blink-caret 0.75s step-end infinite;
+    animation-delay: 0.3s;
+    animation-fill-mode: forwards;
+    width: 0;
+  }
+
+  .typewriter-complete {
+    border-right: none;
+    width: auto;
+  }
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spinIn {
+  0% {
+    transform: rotate(0deg) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  from, to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: currentcolor;
+  }
 }
