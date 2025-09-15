@@ -75,7 +75,7 @@ export default function StaffSearchPage() {
   const [runner, setRunner] = useState<Runner | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const searchRunner = async () => {
     if (!searchId.trim()) {
@@ -130,9 +130,9 @@ export default function StaffSearchPage() {
       animate="animate"
       exit="exit"
     >
-      <main className="min-h-screen bg-gradient-to-b from-background to-muted">
-        <div className="container mx-auto px-4 py-8">
-          <header className="mb-8">
+      <main className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
+        <div className="container mx-auto px-4 py-8 flex-1 flex flex-col justify-center">
+          <header className="mb-8 flex-shrink-0">
             <div className="flex items-center gap-2 mb-4">
               <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
                 <Camera className="w-6 h-6" />
@@ -158,7 +158,7 @@ export default function StaffSearchPage() {
             </div>
           </header>
 
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto flex-1 flex flex-col justify-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentView}
@@ -320,7 +320,7 @@ export default function StaffSearchPage() {
                             <p>{runner.lowerPhrase}</p>
                           </div>
                           <p className="text-3xl text-center">
-                            {t('search.complete.targetTime', { time: runner.targetTime })}
+                            {t('search.complete.targetTime').replace('{time}', runner.targetTime)}
                           </p>
                         </div>
                         <div>

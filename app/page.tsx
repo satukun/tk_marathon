@@ -21,7 +21,7 @@ export default function Home() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-gradient-to-b from-background to-muted">
+      <main className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center">
         <div className="ipad-container">
           <header className="mb-12 text-center">
             <div className="flex items-center justify-center gap-4 mb-6">

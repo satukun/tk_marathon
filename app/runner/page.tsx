@@ -12,9 +12,9 @@ export default function RunnerPage() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-gradient-to-b from-background to-muted">
-        <div className="container mx-auto px-4 py-8">
-          <header className="mb-8">
+      <main className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
+        <div className="container mx-auto px-4 py-8 flex-1 flex flex-col justify-center">
+          <header className="mb-8 flex-shrink-0">
             <div className="flex items-center gap-2 mb-4">
               <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
                 <Camera className="w-6 h-6" />
@@ -29,7 +29,7 @@ export default function RunnerPage() {
             </div>
           </header>
 
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto flex-1 flex flex-col justify-center">
             <RunnerRegistrationForm />
           </div>
         </div>

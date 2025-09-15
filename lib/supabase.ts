@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // 開発用のデフォルト値を設定
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wazyihwhrrcycvmcwnta.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhenlpaHdocnJjeWN2bWN3bnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg1MTMzNTIsImV4cCI6MjA1NDA4OTM1Mn0.-boLjBzJ_4CcNIu_jB1oznvajryaev98kWsGLscEtcc';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://jyquathbinxivfcljqgn.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXVhdGhiaW54aXZmY2xqcWduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5Mzg1MjQsImV4cCI6MjA3MzUxNDUyNH0.9_8ZcSu8qLRhpPESQZYgwYXsOV7aJWwrt7eB7_zi5Ts';
 
 export const supabase = createClient(
   supabaseUrl,
