@@ -6,13 +6,32 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageTransition } from "@/components/page-transition";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function Home() {
   const router = useRouter();
   const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
+  const [isAnimationReady, setIsAnimationReady] = useState(false);
+  const [showTypewriter, setShowTypewriter] = useState(false);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    // ページロード時にアニメーションを開始
+    const timer = setTimeout(() => {
+      setIsAnimationReady(true);
+    }, 100);
+
+    // タイプライター効果のタイミング
+    const typewriterTimer = setTimeout(() => {
+      setShowTypewriter(true);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(typewriterTimer);
+    };
+  }, []);
 
   const handleNavigation = (route: string) => {
     setLoadingRoute(route);
@@ -25,10 +44,30 @@ export default function Home() {
         <div className="ipad-container">
           <header className="mb-12 text-center">
             <div className="flex items-center justify-center gap-4 mb-6">
-              <Camera className="w-12 h-12 text-primary" />
-              <h1 className="text-5xl font-bold tracking-tight">{t('common.title')}</h1>
+              <Camera 
+                className={`w-12 h-12 text-primary ${
+                  isAnimationReady ? 'header-icon-spin' : 'opacity-0'
+                }`} 
+              />
+              <h1 
+                className={`text-5xl font-bold tracking-tight ${
+                  isAnimationReady 
+                    ? showTypewriter 
+                      ? 'typewriter header-title-delay' 
+                      : 'header-fade-in header-title-delay'
+                    : 'opacity-0'
+                }`}
+              >
+                {t('common.title')}
+              </h1>
             </div>
-            <p className="text-xl text-muted-foreground">{t('common.description')}</p>
+            <p 
+              className={`text-xl text-muted-foreground ${
+                isAnimationReady ? 'header-fade-in header-description-delay' : 'opacity-0'
+              }`}
+            >
+              {t('common.description')}
+            </p>
           </header>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
