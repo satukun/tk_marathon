@@ -1,8 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 開発用のデフォルト値を設定
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://jyquathbinxivfcljqgn.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cXVhdGhiaW54aXZmY2xqcWduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5Mzg1MjQsImV4cCI6MjA3MzUxNDUyNH0.9_8ZcSu8qLRhpPESQZYgwYXsOV7aJWwrt7eB7_zi5Ts';
+// 環境変数から取得（必須）
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env.local file.');
+}
 
 export const supabase = createClient(
   supabaseUrl,
