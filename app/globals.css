@@ -118,31 +118,24 @@
     animation: fadeInUp 1s ease-out forwards;
   }
 
-  .header-icon-spin {
-    animation: spinIn 1.5s ease-out;
+  .header-slide-in {
+    opacity: 0;
+    transform: translateX(-50px);
+    animation: slideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .header-icon-bounce {
+    opacity: 0;
+    transform: scale(1) rotate(0deg);
+    animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
   }
 
   .header-title-delay {
-    animation-delay: 0.3s;
+    animation-delay: 0.2s;
   }
 
   .header-description-delay {
-    animation-delay: 0.8s;
-  }
-
-  .typewriter {
-    overflow: hidden;
-    border-right: 3px solid;
-    white-space: nowrap;
-    animation: typing 2s steps(30, end), blink-caret 0.75s step-end infinite;
-    animation-delay: 0.3s;
-    animation-fill-mode: forwards;
-    width: 0;
-  }
-
-  .typewriter-complete {
-    border-right: none;
-    width: auto;
+    animation-delay: 0.6s;
   }
 }
 
@@ -153,35 +146,36 @@
   }
 }
 
-@keyframes spinIn {
+@keyframes slideInRight {
   0% {
-    transform: rotate(0deg) scale(0.8);
     opacity: 0;
+    transform: translateX(-50px) scale(0.95);
   }
-  50% {
-    transform: rotate(180deg) scale(1.1);
-    opacity: 0.8;
+  60% {
+    opacity: 1;
+    transform: translateX(10px) scale(1.02);
   }
   100% {
-    transform: rotate(360deg) scale(1);
     opacity: 1;
+    transform: translateX(0) scale(1);
   }
 }
 
-@keyframes typing {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-}
-
-@keyframes blink-caret {
-  from, to {
-    border-color: transparent;
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-180deg);
   }
   50% {
-    border-color: currentcolor;
+    opacity: 0.9;
+    transform: scale(1.1) rotate(180deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.95) rotate(360deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
   }
 }
