@@ -13,7 +13,6 @@ export default function Home() {
   const router = useRouter();
   const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
   const [isAnimationReady, setIsAnimationReady] = useState(false);
-  const [showTypewriter, setShowTypewriter] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -22,14 +21,8 @@ export default function Home() {
       setIsAnimationReady(true);
     }, 100);
 
-    // タイプライター効果のタイミング
-    const typewriterTimer = setTimeout(() => {
-      setShowTypewriter(true);
-    }, 1000);
-
     return () => {
       clearTimeout(timer);
-      clearTimeout(typewriterTimer);
     };
   }, []);
 
@@ -46,16 +39,12 @@ export default function Home() {
             <div className="flex items-center justify-center gap-4 mb-6">
               <Camera 
                 className={`w-12 h-12 text-primary ${
-                  isAnimationReady ? 'header-icon-spin' : 'opacity-0'
+                  isAnimationReady ? 'header-icon-bounce' : 'opacity-0'
                 }`} 
               />
               <h1 
                 className={`text-5xl font-bold tracking-tight ${
-                  isAnimationReady 
-                    ? showTypewriter 
-                      ? 'typewriter header-title-delay' 
-                      : 'header-fade-in header-title-delay'
-                    : 'opacity-0'
+                  isAnimationReady ? 'header-slide-in header-title-delay' : 'opacity-0'
                 }`}
               >
                 {t('common.title')}
